@@ -1,17 +1,42 @@
 package com.develogical.camera;
 
-public class Camera {
+public class Camera implements WriteListener {
+
+    private final Sensor sensor;
+    private final MemoryCard memoryCard;
+    private boolean powerOn = false;
+    private boolean writing = false;
+
+    public Camera(Sensor sensor, MemoryCard memoryCard) {
+        this.sensor = sensor;
+        this.memoryCard = memoryCard;
+    }
 
     public void pressShutter() {
-        // not implemented
+        if (powerOn) {
+            memoryCard.write(sensor.readData());
+            writing = true;
+        }
     }
 
     public void powerOn() {
-        // not implemented
+        powerOn = true;
+        sensor.powerUp();
     }
 
     public void powerOff() {
-       // not implemented
+        if (!writing) {
+            sensor.powerDown();
+        }
+        powerOn = false;
+    }
+
+    @Override
+    public void writeComplete() {
+        writing = false;
+        if (!powerOn) {
+            sensor.powerDown();
+        }
     }
 }
 
